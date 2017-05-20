@@ -35,9 +35,7 @@ def custom_score(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
-    # raise NotImplementedError
 
-    # IMPROVED SCORE HEURISTIC
     if game.is_loser(player):
         return float("-inf")
 
@@ -46,8 +44,9 @@ def custom_score(game, player):
 
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    return float( own_moves  - ( 2 * opp_moves ) )
-
+    blank_spaces = len(game.get_blank_spaces())
+    filled_spaces = 50 - blank_spaces
+    return float((own_moves - ( 2 * opp_moves ) ) * filled_spaces)
 
 def custom_score_2(game, player):
     """Calculate the heuristic value of a game state from the point of view
@@ -72,9 +71,7 @@ def custom_score_2(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
-    # raise NotImplementedError
 
-    #  NULL SCORE
     if game.is_loser(player):
         return float("-inf")
 
@@ -83,8 +80,7 @@ def custom_score_2(game, player):
 
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    blank_spaces = len(game.get_blank_spaces())
-    return float(( own_moves - opp_moves ) / blank_spaces )
+    return float( own_moves  - ( 1.5 * opp_moves ) )
 
 
 def custom_score_3(game, player):
@@ -110,9 +106,7 @@ def custom_score_3(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
-    # raise NotImplementedError
 
-    # OPEN MOVE SCORE
     if game.is_loser(player):
         return float("-inf")
 
@@ -122,8 +116,7 @@ def custom_score_3(game, player):
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
     blank_spaces = len(game.get_blank_spaces())
-    filled_spaces = 50 - blank_spaces
-    return float((own_moves - ( 2 * opp_moves ) ) * filled_spaces)
+    return float(( own_moves - opp_moves ) / blank_spaces )
 
 
 class IsolationPlayer:
@@ -149,7 +142,6 @@ class IsolationPlayer:
         timer expires.
     """
     def __init__(self, search_depth=3, score_fn=custom_score, timeout=10.):
-        # print("NEW GAME")
         self.search_depth = search_depth
         self.score = score_fn
         self.time_left = None
@@ -194,13 +186,10 @@ class MinimaxPlayer(IsolationPlayer):
 
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
-
-        available_moves = game.get_legal_moves()
-        # print("av moves are {}".format(available_moves))
-        # best_move = (-1, -1)
         if not game.get_legal_moves():
             return(-1,-1)
         else:
+            available_moves = game.get_legal_moves()
             quick_move = available_moves[0]
 
 
@@ -226,11 +215,6 @@ class MinimaxPlayer(IsolationPlayer):
             raise SearchTimeout()
 
         # TODO: finish this function!
-        # raise NotImplementedError
-
-        # if not game.get_legal_moves():
-        #     return(-1,-1)
-
 
         def max_value(self, game, depth):
             if self.time_left() < self.TIMER_THRESHOLD:
@@ -264,12 +248,6 @@ class MinimaxPlayer(IsolationPlayer):
             return best_score
 
 
-
-
-        # moves = game.get_legal_moves()
-
-        # print("moves are {}".format(moves))
-        # best_move = (-1,-1)
 
         if not game.get_legal_moves():
             return(-1,-1)
@@ -378,17 +356,13 @@ class AlphaBetaPlayer(IsolationPlayer):
         self.time_left = time_left
 
         # TODO: finish this function!
-        # raise NotImplementedError
 
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
-
-        available_moves = game.get_legal_moves()
-        # print("av moves are {}".format(available_moves))
-        # best_move = (-1, -1)
         if not game.get_legal_moves():
             return(-1,-1)
         else:
+            available_moves = game.get_legal_moves()
             quick_move = available_moves[0]
 
         # # NOT ITERATIVE DEEPENING
@@ -398,9 +372,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         #     return self.alphabeta(game, self.search_depth)
         # except SearchTimeout:
         #     pass  # Handle any actions required after timeout as needed
-        # # Return the best move from the last completed search iteration
-        # return best_move
-        # # --------
+
 
         # ITERATIVE DEEPENING VERSION 1
         # searching_depth = 1
@@ -413,9 +385,6 @@ class AlphaBetaPlayer(IsolationPlayer):
         #         # print("ITERATIVE DEEPENING returning this {}".format(quick_move))
         #         return quick_move
         #     searching_depth = searching_depth + 1
-        # # Return the best move from the last completed search iteration
-        # return quick_move
-
 
 
         # ITERATIVE DEEPENING VERSION 2
@@ -486,7 +455,6 @@ class AlphaBetaPlayer(IsolationPlayer):
             raise SearchTimeout()
 
         # TODO: finish this function!
-        # raise NotImplementedError
 
 
         def max_value(self, game, depth, alpha, beta):
@@ -539,10 +507,6 @@ class AlphaBetaPlayer(IsolationPlayer):
             best_move = moves[0]
 
 
-        # moves = game.get_legal_moves()
-        # print("moves are {}".format(moves))
-        # best_move = moves[0]
-        # best_move = (-1,-1)
         best_score = float("-inf")
 
         for move in moves:

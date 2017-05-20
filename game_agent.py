@@ -46,7 +46,7 @@ def custom_score(game, player):
 
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    return float(own_moves - opp_moves)
+    return float( own_moves  - ( 2 * opp_moves ) )
 
 
 def custom_score_2(game, player):
@@ -81,7 +81,10 @@ def custom_score_2(game, player):
     if game.is_winner(player):
         return float("inf")
 
-    return 0.
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    blank_spaces = len(game.get_blank_spaces())
+    return float(( own_moves - opp_moves ) / blank_spaces )
 
 
 def custom_score_3(game, player):
@@ -116,7 +119,11 @@ def custom_score_3(game, player):
     if game.is_winner(player):
         return float("inf")
 
-    return float(len(game.get_legal_moves(player)))
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    blank_spaces = len(game.get_blank_spaces())
+    filled_spaces = 50 - blank_spaces
+    return float((own_moves - ( 2 * opp_moves ) ) * filled_spaces)
 
 
 class IsolationPlayer:
@@ -142,6 +149,7 @@ class IsolationPlayer:
         timer expires.
     """
     def __init__(self, search_depth=3, score_fn=custom_score, timeout=10.):
+        # print("NEW GAME")
         self.search_depth = search_depth
         self.score = score_fn
         self.time_left = None
@@ -186,7 +194,15 @@ class MinimaxPlayer(IsolationPlayer):
 
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
-        best_move = (-1, -1)
+
+        available_moves = game.get_legal_moves()
+        # print("av moves are {}".format(available_moves))
+        # best_move = (-1, -1)
+        if not game.get_legal_moves():
+            return(-1,-1)
+        else:
+            quick_move = available_moves[0]
+
 
         try:
             # The try/except block will automatically catch the exception
@@ -194,10 +210,12 @@ class MinimaxPlayer(IsolationPlayer):
             return self.minimax(game, self.search_depth)
 
         except SearchTimeout:
-            pass  # Handle any actions required after timeout as needed
+            # pass  # Handle any actions required after timeout as needed
+            # print("MINIMAX returning this {}".format(quick_move))
+            return quick_move
 
         # Return the best move from the last completed search iteration
-        return best_move
+        return quick_move
 
 
 
@@ -248,10 +266,17 @@ class MinimaxPlayer(IsolationPlayer):
 
 
 
-        moves = game.get_legal_moves()
+        # moves = game.get_legal_moves()
 
-        print("moves are {}".format(moves))
-        best_move = (-1,-1)
+        # print("moves are {}".format(moves))
+        # best_move = (-1,-1)
+
+        if not game.get_legal_moves():
+            return(-1,-1)
+        else:
+            moves = game.get_legal_moves()
+            best_move = moves[0]
+
         best_score = float("-inf")
 
         for move in moves:
@@ -357,32 +382,59 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
-        best_move = (-1, -1)
 
-        # NOT ITERATIVE DEEPENING
-        try:
-            # The try/except block will automatically catch the exception
-            # raised when the timer is about to expire.
-            return self.alphabeta(game, self.search_depth)
-        except SearchTimeout:
-            pass  # Handle any actions required after timeout as needed
-        # Return the best move from the last completed search iteration
-        return best_move
-        # --------
+        available_moves = game.get_legal_moves()
+        # print("av moves are {}".format(available_moves))
+        # best_move = (-1, -1)
+        if not game.get_legal_moves():
+            return(-1,-1)
+        else:
+            quick_move = available_moves[0]
 
-        # # ITERATIVE DEEPENING
+        # # NOT ITERATIVE DEEPENING
+        # try:
+        #     # The try/except block will automatically catch the exception
+        #     # raised when the timer is about to expire.
+        #     return self.alphabeta(game, self.search_depth)
+        # except SearchTimeout:
+        #     pass  # Handle any actions required after timeout as needed
+        # # Return the best move from the last completed search iteration
+        # return best_move
+        # # --------
+
+        # ITERATIVE DEEPENING VERSION 1
         # searching_depth = 1
         # while self.time_left() > self.TIMER_THRESHOLD:
         #     try:
         #         # The try/except block will automatically catch the exception
         #         # raised when the timer is about to expire.
-        #         best_move = self.alphabeta(game, searching_depth)
+        #         quick_move = self.alphabeta(game, searching_depth)
         #     except SearchTimeout:
-        #         return best_move
+        #         # print("ITERATIVE DEEPENING returning this {}".format(quick_move))
+        #         return quick_move
         #     searching_depth = searching_depth + 1
         # # Return the best move from the last completed search iteration
-        # return best_move
-        # # --------
+        # return quick_move
+
+
+
+        # ITERATIVE DEEPENING VERSION 2
+        try:
+            searching_depth = 1
+            while True:
+                quick_move = self.alphabeta(game, searching_depth)
+                searching_depth = searching_depth + 1
+            return quick_move
+        except SearchTimeout:
+            return quick_move
+
+
+
+        # Return the best move from the last completed search iteration
+        return quick_move
+
+
+
 
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
@@ -480,11 +532,17 @@ class AlphaBetaPlayer(IsolationPlayer):
 
 
 
+        if not game.get_legal_moves():
+            return(-1,-1)
+        else:
+            moves = game.get_legal_moves()
+            best_move = moves[0]
 
 
-        moves = game.get_legal_moves()
+        # moves = game.get_legal_moves()
         # print("moves are {}".format(moves))
-        best_move = (-1,-1)
+        # best_move = moves[0]
+        # best_move = (-1,-1)
         best_score = float("-inf")
 
         for move in moves:

@@ -23,6 +23,10 @@ class IsolationTest(unittest.TestCase):
         self.game = isolation.Board(self.player1, self.player2)
 
 
+    # def test_play(self):
+    #     self.setUp()
+    #     self.game.play()
+
 
     def test_anything(self):
         self.setUp()
